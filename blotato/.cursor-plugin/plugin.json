@@ -11,7 +11,7 @@
   "repository": "https://github.com/hachiflow/waggle-plugins",
   "license": "MIT",
   "keywords": ["blotato", "social-media", "publishing", "scheduling", "x", "linkedin", "mcp"],
-  "category": "integrations",
+  "category": "marketing",
   "tags": ["social-media", "publishing", "mcp"],
   "variables": {
     "type": "object",
