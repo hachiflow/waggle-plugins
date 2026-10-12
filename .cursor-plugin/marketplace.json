@@ -1,0 +1,17 @@
+{
+  "name": "waggle-plugins",
+  "owner": {
+    "name": "hachiflow",
+    "email": "support@hachiflow.com"
+  },
+  "metadata": {
+    "description": "Plugins hachiflow maintains for Waggle agents, for services whose own plugin is not in the catalog yet"
+  },
+  "plugins": [
+    {
+      "name": "blotato",
+      "source": "blotato",
+      "description": "Publish and schedule posts to X, LinkedIn, Instagram, TikTok and five more through Blotato's hosted MCP server."
+    }
+  ]
+}

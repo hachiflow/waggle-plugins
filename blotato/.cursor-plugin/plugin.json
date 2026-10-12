@@ -1,0 +1,28 @@
+{
+  "name": "blotato",
+  "displayName": "Blotato",
+  "version": "0.1.0",
+  "description": "Publish and schedule posts to X, LinkedIn, Facebook, Instagram, TikTok, YouTube, Threads, Bluesky and Pinterest through Blotato's hosted MCP server. Maintained by hachiflow, not by Blotato.",
+  "author": {
+    "name": "hachiflow",
+    "email": "support@hachiflow.com"
+  },
+  "homepage": "https://www.blotato.com/mcp",
+  "repository": "https://github.com/hachiflow/waggle-plugins",
+  "license": "MIT",
+  "keywords": ["blotato", "social-media", "publishing", "scheduling", "x", "linkedin", "mcp"],
+  "category": "integrations",
+  "tags": ["social-media", "publishing", "mcp"],
+  "variables": {
+    "type": "object",
+    "properties": {
+      "BLOTATO_API_KEY": {
+        "type": "string",
+        "title": "Blotato API key",
+        "description": "From Blotato, Settings, API. Creating a key starts the paid Starter plan; the free trial has no API or MCP access."
+      }
+    },
+    "required": ["BLOTATO_API_KEY"]
+  },
+  "mcpServers": "./mcp.json"
+}
