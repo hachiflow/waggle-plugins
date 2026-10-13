@@ -1,18 +1,20 @@
-#!/usr/bin/env node
-// Validates every plugin in this repository against the rules waggle's
-// indexer applies when it reads the repository (waggle, internal/catalog),
-// and a few it does not enforce but this repository does. A plugin the
-// indexer would skip, or would list and refuse to run, fails here, so it
-// never reaches a workspace's catalog broken.
-//
-// Run it before every push:
+// A local copy of the check hachiflow runs on this repository. Run it before
+// you open a pull request, so the maintainers' check, which is the one that
+// counts, finds nothing:
 //
 //   node scripts/validate.mjs
+//
+// The authoritative check runs on hachiflow's own infrastructure from a
+// private repository (internal/catalog/check.go there): it reads this
+// repository as data and uses waggled's own parser. This file is a copy of
+// the rules for your convenience, and a pull request cannot change it: the
+// check refuses a tree whose copy differs by a byte. If it passes here and
+// fails there, the private check is right; its findings say why.
 //
 // It needs Node 18 or later and nothing else. It reads files and reaches no
 // network. Exit 0 when every plugin is good, 1 with one line per problem.
 
-import { readFileSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, lstatSync, existsSync, statSync } from 'node:fs';
 import { join, normalize, posix, resolve } from 'node:path';
 
 const root = resolve(process.argv[2] || '.');
@@ -34,6 +36,23 @@ const PLACEHOLDER = /\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g;
 // A header that carries a credential must be a ${VAR} placeholder: a literal
 // there is a secret committed to a public repository.
 const CREDENTIAL_HEADER = /(authorization|api[-_]?key|token|secret|password|cookie)/i;
+
+// A string shaped like a vendor's credential, anywhere in any file.
+const KNOWN_SECRET = /sk-[A-Za-z0-9_-]{16,}|sk_(live|test)_[A-Za-z0-9]{10,}|[pr]k_live_[A-Za-z0-9]{10,}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|xox[abprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}|glpat-[A-Za-z0-9_-]{16,}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{5,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|[Bb]earer\s+[A-Za-z0-9._~+/=-]{20,}/;
+
+// publicHost: a name with a dot that is not a local suffix, or a public IPv4.
+function publicHost(host) {
+  host = host.toLowerCase().replace(/\.$/, '').replace(/^\[|\]$/g, '');
+  if (!host || host.includes(':') || /^(0x[0-9a-f]+|[0-9]+)$/.test(host)) return false;
+  const v4 = host.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (v4) {
+    const [a, b] = [Number(v4[1]), Number(v4[2])];
+    return !(a === 0 || a === 10 || a === 127 || a >= 224 || (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127));
+  }
+  if (!host.includes('.')) return false;
+  return !/\.(localhost|local|internal|lan|home|corp|intranet|home\.arpa|localdomain)$/.test(host);
+}
 
 const problems = [];
 const fail = (where, what) => problems.push(`${where}: ${what}`);
@@ -104,6 +123,10 @@ function checkPlugin(row, seen) {
   if (!m.name || !String(m.name).trim()) fail(where, 'the manifest has no name');
   if (m.name !== row.name) fail(where, `the manifest is named ${JSON.stringify(m.name)}, and the marketplace row ${JSON.stringify(row.name)}: they must match`);
   if (!m.displayName) fail(where, 'the manifest has no displayName, which is what a person reads in the marketplace');
+  if (m.license !== 'MIT') fail(where, `the manifest license is ${JSON.stringify(m.license)}, want "MIT"`);
+  if (!/Maintained by hachiflow, not by \S/.test(m.description || '')) fail(where, 'the manifest description must say "Maintained by hachiflow, not by <vendor>"');
+  if (!m.version) fail(where, 'the manifest has no version');
+  if (dir !== row.name) fail(where, `its source must be a top level directory named like the plugin, got ${JSON.stringify(row.source)}`);
   if (!m.description && !row.description) fail(where, 'neither the manifest nor the marketplace row has a description');
   if (!m.category) fail(where, 'the manifest has no category, so the plugin would sit under no chip');
   else if (!CHIPS.has(String(m.category).toLowerCase())) fail(where, `the category ${JSON.stringify(m.category)} is not a chip of waggle's curation.toml; use one of: ${[...CHIPS].join(', ')}`);
@@ -141,6 +164,8 @@ function checkPlugin(row, seen) {
     let url;
     try { url = new URL(sv.url); } catch { url = null; }
     if (!url || url.protocol !== 'https:') fail(at, `its url must be https, got ${JSON.stringify(sv.url)}`);
+    else if (url.username || url.password) fail(at, 'its url carries a user name or password');
+    else if (!publicHost(url.hostname)) fail(at, `its host ${JSON.stringify(url.hostname)} is not a public host (loopback, private, link local and local names are refused)`);
     for (const [header, value] of Object.entries(sv.headers || {})) {
       if (CREDENTIAL_HEADER.test(header) && ![...String(value).matchAll(PLACEHOLDER)].length) {
         fail(at, `the header ${header} carries a literal value; a credential must be a \${NAME} placeholder`);
@@ -168,8 +193,32 @@ function checkPlugin(row, seen) {
   }
 }
 
+function walk(rel) {
+  for (const name of readdirSync(join(root, rel))) {
+    if (name === '.git') continue;
+    const relPath = posix.join(rel, name);
+    const st = lstatSync(join(root, relPath));
+    if (st.isSymbolicLink()) { fail(`file ${relPath}`, 'is a symbolic link'); continue; }
+    if (st.isDirectory()) { walk(relPath); continue; }
+    if (relPath !== 'scripts/validate.mjs') {
+      if (st.mode & 0o111) fail(`file ${relPath}`, 'is executable');
+      if (st.size > 256 * 1024) fail(`file ${relPath}`, 'is over 256 KB');
+      const text = readFileSync(join(root, relPath));
+      if (text.subarray(0, 8192).includes(0)) fail(`file ${relPath}`, 'holds binary bytes');
+      else if (KNOWN_SECRET.test(text.toString('utf8'))) fail(`file ${relPath}`, "holds a string shaped like a vendor's API key, token or private key");
+    }
+  }
+}
+walk('.');
+
 const mp = readJSON(MARKETPLACE, 'marketplace');
 if (mp) {
+  const listed = new Set((mp.plugins || []).map((r) => String(r.source || '').split('/')[0]));
+  for (const d of readdirSync(root, { withFileTypes: true })) {
+    if (d.isDirectory() && !['.git', 'docs', 'scripts', '.cursor-plugin'].includes(d.name) && !listed.has(d.name)) {
+      fail(`directory ${d.name}`, `is not a plugin listed in ${MARKETPLACE}`);
+    }
+  }
   if (!Array.isArray(mp.plugins) || mp.plugins.length === 0) fail('marketplace', `${MARKETPLACE} names no plugins`);
   const seen = new Set();
   for (const row of mp.plugins || []) checkPlugin(row || {}, seen);

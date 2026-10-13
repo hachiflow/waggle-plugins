@@ -37,11 +37,13 @@ When a customer asks for a tool the catalog does not carry, the whole change is 
    - **OAuth**: declare nothing. An http server with no placeholder is signed in to through the service's own OAuth, discovered at its url.
 3. Set `category` to the chip the plugin belongs under in the Marketplace: `marketing`, `productivity`, `inbox-and-collaboration`, `customer-support`, `sales`, `payments`, `data-analytics`, `infrastructure`, `design`, `research`, `documents-and-files`, `scheduling`, `finance-and-legal`, `developer-tools`, `agent-orchestration` or `integrations`. A new chip is the one thing that needs a change in waggle (`internal/catalog/curation.toml`).
 4. Add a row for it to `.cursor-plugin/marketplace.json` (`name`, `source`, `description`) and to the table above.
-5. Check it, then push to `main`:
+5. Check it on your machine, then open a pull request:
 
 ```sh
 node scripts/validate.mjs
 ```
+
+A maintainer runs the full check on your pull request's head commit before merging it (see "The check"). Do not push to `main` without that.
 
 Every Waggle instance re-reads this repository at boot and once an hour, pinned to the commit it read, so the plugin is in every workspace's catalog within the hour. An admin who will not wait runs:
 
@@ -51,6 +53,12 @@ hachi catalog refresh --tenant <workspace>
 
 ## The check
 
-`scripts/validate.mjs` reads every plugin the way waggle's indexer does and fails on anything that would be skipped, or listed and refused: a manifest that does not parse or has no name, a name that differs from its row, an MCP file that is missing, a server that is not `https`, a credential written as a literal, a `${NAME}` no variable declares, a category that is no chip. It needs Node 18 or later and nothing else.
+Three layers, none of which runs anything from this repository.
 
-It runs by hand today. hachiflow's CI runs on self hosted runners only, and those are closed to public repositories, as they should be: a pull request from a fork must not run on them. This repository has to be public, because every instance reads it anonymously, so there is no workflow here yet.
+- **`scripts/validate.mjs`** is the check you run before opening a pull request. It needs Node 18 or later and nothing else, and reads files only. It is a copy: the one that counts lives in hachiflow's private repository and the full check fails if this file differs from it, so a pull request cannot change it. If it needs to change, ask a maintainer.
+- **The full check** runs on hachiflow's side, on every commit to `main` (within ten minutes, and on a schedule) and on demand for a pull request. It parses the repository with the same indexer the servers use, so what passes is what is served, and adds the file and content rules: only `https` servers on public hosts, only `${NAME}` placeholders in headers and none undeclared, no literal secret or key shaped string, a known category, the MIT license, a description that says "Maintained by hachiflow, not by <vendor>", a unique name that is not already a plugin of Cursor's listings, every directory listed and every listing present, no workflows, symlinks, executables, binaries or images, and size limits. Nothing in the repository is executed, and no pull request runs code on hachiflow's machines.
+- **The servers hold a bad plugin back.** If a plugin on `main` fails these rules anyway, every Waggle instance skips it and keeps serving the last good version of it; a marketplace file that does not parse leaves the previous catalog serving. Customers keep what they had; the new or changed plugin is simply not offered until it is fixed.
+
+When the check fails on `main`, an issue opens in hachiflow's private repository naming each finding, and closes itself when `main` is green again. When it fails on your pull request, a maintainer pastes the findings into the pull request; each one names the plugin or file and what to change. Fix it in the same branch and ask for another run.
+
+There is deliberately no workflow in this repository: it has to be public, because every instance reads it anonymously, and hachiflow's self hosted runners are closed to public repositories so that a fork's pull request can never run on them.
