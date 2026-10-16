@@ -31,6 +31,10 @@ const CHIPS = new Set([
   'developer-tools', 'integrations',
 ]);
 
+// The `source` values a manifest variable may name: the providers whose app waggle installs.
+const SOURCES = new Set(['github-app']);
+// The service each source's install makes its grant under; a plugin of the source is named for it.
+const SOURCE_SERVICES = { 'github-app': 'github' };
 const SLUG = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const PLACEHOLDER = /\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g;
 // A header that carries a credential must be a ${VAR} placeholder: a literal
@@ -187,9 +191,25 @@ function checkPlugin(row, seen) {
     if (!used.has(v)) fail(where, `the variable ${v} is declared and no server uses it`);
   }
   if (m.variables && !Array.isArray(m.variables)) {
+    let sourced = 0;
+    let pasted = 0;
     for (const [key, prop] of Object.entries(m.variables.properties || {})) {
       if (!prop || !prop.title) fail(where, `the variable ${key} has no title, which is the label on the key form`);
+      if (!prop || !('source' in prop)) { pasted += 1; continue; }
+      if (!SOURCES.has(prop.source)) {
+        pasted += 1;
+        fail(where, `the variable ${key} names source ${JSON.stringify(String(prop.source))}, which waggle does not run (known: ${[...SOURCES].join(', ')})`);
+      } else if (prop.default !== undefined && prop.default !== null) {
+        sourced += 1;
+        fail(where, `the variable ${key} has a default and a source; a value from ${prop.source} is made when a lease is issued, never typed in a manifest`);
+      } else {
+        sourced += 1;
+      }
+      if (SOURCES.has(prop.source) && m.name !== SOURCE_SERVICES[prop.source]) {
+        fail(where, `the variable ${key} comes from ${prop.source}, whose install makes the grant of the service ${SOURCE_SERVICES[prop.source]}, so the plugin must be named ${SOURCE_SERVICES[prop.source]}`);
+      }
     }
+    if (sourced > 0 && pasted > 0) fail(where, 'one plugin mixes a variable from a source with keys a person pastes; a plugin installs an app or asks for keys, not both');
   }
 }
 

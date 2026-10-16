@@ -1,0 +1,29 @@
+{
+  "name": "github",
+  "displayName": "GitHub",
+  "version": "0.1.0",
+  "description": "Work on the GitHub repositories you pick: git and gh in the agent's sandbox, and GitHub's hosted MCP server for issues, pull requests, code search and files. You install hachiflow's GitHub App and choose the repositories on GitHub's own screen; nothing is pasted and the access lasts an hour at a time. Maintained by hachiflow, not by GitHub.",
+  "author": {
+    "name": "hachiflow",
+    "email": "support@hachiflow.com"
+  },
+  "homepage": "https://github.com/hachiflow/waggle-plugins/tree/main/github",
+  "repository": "https://github.com/hachiflow/waggle-plugins",
+  "license": "MIT",
+  "keywords": ["github", "git", "gh", "pull-requests", "issues", "code", "mcp"],
+  "category": "developer-tools",
+  "tags": ["github", "git", "mcp"],
+  "variables": {
+    "type": "object",
+    "properties": {
+      "GITHUB_TOKEN": {
+        "type": "string",
+        "title": "GitHub",
+        "description": "Install hachiflow's GitHub App on GitHub and choose which repositories the agent may use. The agent gets a token that works for an hour at a time and only on those repositories.",
+        "source": "github-app"
+      }
+    },
+    "required": ["GITHUB_TOKEN"]
+  },
+  "mcpServers": "./mcp.json"
+}

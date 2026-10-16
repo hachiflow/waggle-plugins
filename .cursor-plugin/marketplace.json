@@ -12,6 +12,11 @@
       "name": "blotato",
       "source": "blotato",
       "description": "Publish and schedule posts to X, LinkedIn, Instagram, TikTok and five more through Blotato's hosted MCP server."
+    },
+    {
+      "name": "github",
+      "source": "github",
+      "description": "Give an agent git, gh and GitHub's hosted MCP server on the repositories you pick, by installing hachiflow's GitHub App."
     }
   ]
 }
