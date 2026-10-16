@@ -4,7 +4,10 @@ Plugins hachiflow maintains for Waggle agents, for services whose own plugin is 
 
 | Plugin | What it gives an agent | Sign in |
 | --- | --- | --- |
+| `github` | `git` and `gh` in the agent's sandbox, and GitHub's hosted MCP server at `https://api.githubcopilot.com/mcp/`: files, issues, pull requests, branches and code search on the repositories you pick | an "Install on GitHub" button: you install hachiflow's GitHub App and choose the repositories on GitHub's own screen |
 | `blotato` | Blotato's hosted MCP server at `https://mcp.blotato.com/mcp`: publish and schedule posts to X, LinkedIn, Facebook, Instagram, TikTok, YouTube, Threads, Bluesky and Pinterest | a Blotato API key |
+
+`github` takes the name of Cursor's plugin on purpose. Cursor's asks for a pasted personal access token; this one connects through hachiflow's GitHub App, which gives the agent a token that lasts an hour and reaches only the repositories you picked.
 
 These are not official plugins of the services they connect to. Each one only points an agent at the service's own MCP server; the names and marks belong to their owners.
 
@@ -34,6 +37,7 @@ When a customer asks for a tool the catalog does not carry, the whole change is 
    - `<name>/mcp.json`: the service's hosted MCP server. Only an `http` server with an `https` url runs in a workspace; a `stdio` or `sse` server is listed and refused.
 2. Say how it signs in:
    - **A key**: put it in a header as a placeholder, `"x-api-key": "${SERVICE_API_KEY}"`, and declare `SERVICE_API_KEY` under `variables` in the manifest with a `title` (the label on the connect form) and a `description` (where a person finds the key). Never commit a real value.
+   - **An app install**: when the service has an app waggle installs for a person (today only GitHub's, `"source": "github-app"`), declare the variable with that `source` and no other key. The connect form is then the service's own install button, nothing is pasted, and the value is made by waggle each time the agent is woken. Use it as `"Authorization": "Bearer ${GITHUB_TOKEN}"`; see `github/`. A new source is a change in waggle, not here, and one plugin does not mix a source with pasted keys.
    - **OAuth**: declare nothing. An http server with no placeholder is signed in to through the service's own OAuth, discovered at its url.
 3. Set `category` to the chip the plugin belongs under in the Marketplace: `marketing`, `productivity`, `inbox-and-collaboration`, `customer-support`, `sales`, `payments`, `data-analytics`, `infrastructure`, `design`, `research`, `documents-and-files`, `scheduling`, `finance-and-legal`, `developer-tools`, `agent-orchestration` or `integrations`. A new chip is the one thing that needs a change in waggle (`internal/catalog/curation.toml`).
 4. Add a row for it to `.cursor-plugin/marketplace.json` (`name`, `source`, `description`) and to the table above.
