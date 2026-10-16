@@ -2,7 +2,7 @@
   "name": "github",
   "displayName": "GitHub",
   "version": "0.1.0",
-  "description": "Work on the GitHub repositories you pick: git and gh in the agent's sandbox, and GitHub's hosted MCP server for issues, pull requests, code search and files. You install hachiflow's GitHub App and choose the repositories on GitHub's own screen; nothing is pasted and the access lasts an hour at a time. Maintained by hachiflow, not by GitHub.",
+  "description": "Gives an agent GitHub's own tools, plus git and gh, on the repositories you choose. Installs the hachiflow GitHub App instead of asking for a personal access token. Not an official GitHub integration. Maintained by hachiflow, not by GitHub.",
   "author": {
     "name": "hachiflow",
     "email": "support@hachiflow.com"
