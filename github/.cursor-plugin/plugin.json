@@ -3,6 +3,7 @@
   "displayName": "GitHub",
   "version": "0.1.0",
   "description": "Gives an agent GitHub's own tools, plus git and gh, on the repositories you choose. Installs the hachiflow GitHub App instead of asking for a personal access token. Not an official GitHub integration. Maintained by hachiflow, not by GitHub.",
+  "logo": "https://hachiflow.com/img/plugins/github.svg",
   "author": {
     "name": "hachiflow",
     "email": "support@hachiflow.com"
