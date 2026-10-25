@@ -2,7 +2,7 @@
   "name": "github",
   "displayName": "GitHub",
   "version": "0.1.0",
-  "description": "Gives an agent GitHub's own tools, plus git and gh, on the repositories you choose. Installs the hachiflow GitHub App instead of asking for a personal access token. Not an official GitHub integration. Maintained by hachiflow, not by GitHub.",
+  "description": "Gives an agent GitHub's own tools, plus git and gh, on only the repositories you pick: read code, open issues and pull requests, push branches. You install the hachiflow GitHub App and choose the repositories, and the agent gets a token that lasts an hour and works only on those. Nothing long-lived is pasted or stored, so there is no token to leak or forget to rotate. You can revoke access any time on GitHub, under Settings, Applications, Installed GitHub Apps. Not an official GitHub integration. Maintained by hachiflow, not by GitHub.",
   "logo": "https://hachiflow.com/img/plugins/github.svg",
   "author": {
     "name": "hachiflow",
