@@ -40,8 +40,9 @@ When a customer asks for a tool the catalog does not carry, the whole change is 
    - **An app install**: when the service has an app waggle installs for a person (today only GitHub's, `"source": "github-app"`), declare the variable with that `source` and no other key. The connect form is then the service's own install button, nothing is pasted, and the value is made by waggle each time the agent is woken. Use it as `"Authorization": "Bearer ${GITHUB_TOKEN}"`; see `github/`. A new source is a change in waggle, not here, and one plugin does not mix a source with pasted keys.
    - **OAuth**: declare nothing. An http server with no placeholder is signed in to through the service's own OAuth, discovered at its url.
 3. Set `category` to the chip the plugin belongs under in the Marketplace: `marketing`, `productivity`, `inbox-and-collaboration`, `customer-support`, `sales`, `payments`, `data-analytics`, `infrastructure`, `design`, `research`, `documents-and-files`, `scheduling`, `finance-and-legal`, `developer-tools`, `agent-orchestration` or `integrations`. A new chip is the one thing that needs a change in waggle (`internal/catalog/curation.toml`).
-4. Add a row for it to `.cursor-plugin/marketplace.json` (`name`, `source`, `description`) and to the table above.
-5. Check it on your machine, then open a pull request:
+4. Say what an agent can do with it, in `tools` in `plugin.json`: a list of `{ "name": "read_code", "description": "Read files in the repositories you picked.", "access": "read" }`. `name` is a stable key, `description` is one plain sentence a person reads (at most 300 characters), and `access` is `read` or `write`; a tool that can change anything is `write`. At most 40, no repeated names. The Marketplace prints this list on the plugin's page and a row says "reads", "writes" or both from it. Describe only what the credential behind the plugin is allowed to do, not everything the service's server offers. Without a list the page says it is not described by the publisher.
+5. Add a row for it to `.cursor-plugin/marketplace.json` (`name`, `source`, `description`) and to the table above.
+6. Check it on your machine, then open a pull request:
 
 ```sh
 node scripts/validate.mjs

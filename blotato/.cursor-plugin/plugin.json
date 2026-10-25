@@ -13,6 +13,16 @@
   "keywords": ["blotato", "social-media", "publishing", "scheduling", "x", "linkedin", "mcp"],
   "category": "marketing",
   "tags": ["social-media", "publishing", "mcp"],
+  "tools": [
+    { "name": "read_accounts", "description": "See which social accounts are connected, and the posts and schedules on them.", "access": "read" },
+    { "name": "publish", "description": "Publish posts now or schedule them, on the accounts you connected.", "access": "write" },
+    { "name": "edit_schedule", "description": "Change or delete scheduled posts.", "access": "write" },
+    { "name": "analytics", "description": "Read how posts performed.", "access": "read" },
+    { "name": "comments", "description": "Read comments on posts, and reply to them.", "access": "write" },
+    { "name": "messages", "description": "Read direct messages and send replies.", "access": "write" },
+    { "name": "create_media", "description": "Make images and videos, and pull content from a link, to use in posts.", "access": "write" },
+    { "name": "automations", "description": "Create and change automatic replies to direct messages.", "access": "write" }
+  ],
   "variables": {
     "type": "object",
     "properties": {

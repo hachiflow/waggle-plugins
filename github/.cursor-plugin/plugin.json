@@ -14,6 +14,14 @@
   "keywords": ["github", "git", "gh", "pull-requests", "issues", "code", "mcp"],
   "category": "developer-tools",
   "tags": ["github", "git", "mcp"],
+  "tools": [
+    { "name": "read_code", "description": "Read files, branches and commits in the repositories you picked.", "access": "read" },
+    { "name": "search", "description": "Search code, issues and pull requests in those repositories.", "access": "read" },
+    { "name": "read_threads", "description": "Read issues and pull requests, with their comments, reviews and changes.", "access": "read" },
+    { "name": "edit_issues", "description": "Open, edit and comment on issues.", "access": "write" },
+    { "name": "push_code", "description": "Create branches and push commits, with git or GitHub's tools. Changes to workflow files are refused.", "access": "write" },
+    { "name": "pull_requests", "description": "Open, review, comment on and merge pull requests.", "access": "write" }
+  ],
   "variables": {
     "type": "object",
     "properties": {
