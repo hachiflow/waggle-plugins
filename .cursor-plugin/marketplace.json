@@ -16,7 +16,7 @@
     {
       "name": "github",
       "source": "github",
-      "description": "Give an agent git, gh and GitHub's hosted MCP server on the repositories you pick, by installing hachiflow's GitHub App."
+      "description": "GitHub's own tools, plus git and gh, on only the repositories you pick, through hachiflow's GitHub App. Not an official GitHub integration."
     }
   ]
 }

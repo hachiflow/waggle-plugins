@@ -4,7 +4,7 @@ Plugins hachiflow maintains for Waggle agents, for services whose own plugin is 
 
 | Plugin | What it gives an agent | Sign in |
 | --- | --- | --- |
-| `github` | `git` and `gh` in the agent's sandbox, and GitHub's hosted MCP server at `https://api.githubcopilot.com/mcp/`: files, issues, pull requests, branches and code search on the repositories you pick | an "Install on GitHub" button: you install hachiflow's GitHub App and choose the repositories on GitHub's own screen |
+| `github` | `git` and `gh` in the agent's sandbox, and GitHub's hosted MCP server at `https://api.githubcopilot.com/mcp/`: read code, open issues and pull requests, push branches, on only the repositories you pick (see `github/README.md`) | an "Install on GitHub" button: you install hachiflow's GitHub App and choose the repositories on GitHub's own screen |
 | `blotato` | Blotato's hosted MCP server at `https://mcp.blotato.com/mcp`: publish and schedule posts to X, LinkedIn, Facebook, Instagram, TikTok, YouTube, Threads, Bluesky and Pinterest | a Blotato API key |
 
 `github` takes the name of Cursor's plugin on purpose. Cursor's asks for a pasted personal access token; this one connects through hachiflow's GitHub App, which gives the agent a token that lasts an hour and reaches only the repositories you picked.
